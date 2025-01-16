@@ -4,6 +4,7 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from tables.models import Table
+from django.test.client import Client
 
 # Create your tests here.
 
@@ -12,11 +13,14 @@ class TableTests(APITestCase):
         # Superuser ke config
         self.admin_user = User.objects.create_superuser(
             username='consultadd', password='consultadd', email='')
+        self.admin_user.save()
+        c=Client()
+        c.login(username=self.admin_user.username, password=self.admin_user.password)
         self.token = Token.objects.create(user=self.admin_user)
         self.table_data = {
         'name': 'Table 1',
         'capacity': 4,
-        'is-available': True
+        'is_available': True
         }
 
     def test_view_all_tables(self):
@@ -50,8 +54,8 @@ class TableTests(APITestCase):
         table = Table.objects.create(**self.table_data)
         updated_data = {
             'name': 'Updated Table',
-            'seats': 6,
-            'status': 'Reserved'
+            'capacity': 6,
+            'is_available': True
         }
 
         response = self.client.put(f'/admin/tables/{table.id}/', updated_data, format='json')
